@@ -32,5 +32,6 @@ A Machine Learning project that predicts house sale prices based on property fea
 **Ames Housing Dataset – Kaggle House Prices**
 
 ## Author
-
+Dhanaraj Lokhande
 BE Information Technology | 2026 Graduate
+
