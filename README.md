@@ -7,7 +7,7 @@ A Machine Learning project that predicts house sale prices based on property fea
 ## Technologies
 
 * Python
-* Pandas & NumPy
+* Pandas & NumPy 
 * Matplotlib & Seaborn
 * Scikit-learn
 * Machine Learning Regression
