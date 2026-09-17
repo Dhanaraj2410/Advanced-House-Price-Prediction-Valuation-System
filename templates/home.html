@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | Advanced House Price Prediction System{% endblock %}
+
+{% block content %}
+<div class="hero-banner shadow-lg mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">AI-Powered Residential Property Valuation</h1>
+            <p class="lead text-light mb-4">
+                Accurately estimate residential home sale prices using machine learning trained on 80+ structural and environmental features.
+            </p>
+            <a href="{% url 'predict' %}" class="btn btn-light btn-lg font-weight-bold px-4 me-2 shadow-sm text-primary">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Start Price Valuation
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fa-solid fa-chart-pie me-2"></i>Explore Analytics
+            </a>
+        </div>
+        <div class="col-lg-4 text-center mt-4 mt-lg-0">
+            <i class="fa-solid fa-building-circle-check text-light opacity-75" style="font-size: 8rem;"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-custom h-100 p-4 bg-white">
+            <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <h4 class="fw-bold">1,460 Property Dataset</h4>
+            <p class="text-muted">Extensively trained on Ames Housing dataset with 81 granular property columns covering structural quality, living area, garage, and location.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom h-100 p-4 bg-white">
+            <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <h4 class="fw-bold">0.927 R² Accuracy</h4>
+            <p class="text-muted">Utilizes tuned Gradient Boosting & Ensemble regressors with Log-Target transformation and 5-Fold Cross Validation.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom h-100 p-4 bg-white">
+            <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                <i class="fa-solid fa-server"></i>
+            </div>
+            <h4 class="fw-bold">Django REST API</h4>
+            <p class="text-muted">Production-ready Django API integration storing prediction history in MySQL with instant automated AI insights.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card card-custom p-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Recent Valuations History</h3>
+        <a href="{% url 'history' %}" class="btn btn-outline-primary btn-sm">View All History</a>
+    </div>
+
+    {% if recent_predictions %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Quality</th>
+                    <th>Living Area</th>
+                    <th>Built Year</th>
+                    <th>Neighborhood</th>
+                    <th>Valuation Price</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pred in recent_predictions %}
+                <tr>
+                    <td><strong>#{{ pred.id }}</strong></td>
+                    <td><span class="badge bg-info text-dark">{{ pred.overall_qual }}/10</span></td>
+                    <td>{{ pred.gr_liv_area|floatformat:0 }} sq ft</td>
+                    <td>{{ pred.year_built }}</td>
+                    <td>{{ pred.neighborhood }}</td>
+                    <td class="text-success fw-bold">${{ pred.predicted_price|floatformat:2 }}</td>
+                    <td class="text-muted small">{{ pred.created_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No property valuations performed yet. <a href="{% url 'predict' %}">Run your first valuation!</a></p>
+    {% endif %}
+</div>
+{% endblock %}

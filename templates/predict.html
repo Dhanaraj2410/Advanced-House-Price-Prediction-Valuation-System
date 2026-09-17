@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Property Valuation Predictor | House Price Prediction{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Form Column -->
+    <div class="col-lg-7">
+        <div class="card card-custom p-4 bg-white shadow-sm">
+            <h3 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>House Characteristics Form</h3>
+            <p class="text-muted mb-4">Enter property specifications to compute the estimated market sale price.</p>
+
+            <form method="post" action="{% url 'predict' %}">
+                {% csrf_token %}
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Overall Quality (1-10)</label>
+                        {{ form.overall_qual }}
+                        <div class="form-text">1 = Poor, 5 = Average, 10 = Very Excellent</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Above Grade Living Area (sq ft)</label>
+                        {{ form.gr_liv_area }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Year Built</label>
+                        {{ form.year_built }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Garage Car Capacity</label>
+                        {{ form.garage_cars }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Total Basement Area (sq ft)</label>
+                        {{ form.total_bsmt_sf }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Full Bathrooms</label>
+                        {{ form.full_bath }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Neighborhood Location</label>
+                        {{ form.neighborhood }}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 font-weight-bold shadow">
+                    <i class="fa-solid fa-calculator me-2"></i>Calculate Estimated Price
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Prediction Result & Insights Column -->
+    <div class="col-lg-5">
+        {% if result %}
+        <div class="card card-custom p-4 bg-white text-center border-primary shadow mb-4">
+            <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill mx-auto mb-3">Predicted Valuation</span>
+            <div class="price-badge mb-2">{{ result.formatted_price }}</div>
+            <p class="text-muted small">Estimated Sale Price based on Gradient Boosting Pipeline</p>
+
+            {% if result.insights %}
+            <div class="text-start bg-light p-3 rounded mt-3">
+                <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-lightbulb text-warning me-2"></i>AI Valuation Drivers:</h6>
+                <ul class="mb-0 small text-muted ps-3">
+                    {% for insight in result.insights %}
+                    <li class="mb-1">{{ insight }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card card-custom p-4 bg-white text-center shadow-sm">
+            <i class="fa-solid fa-house-laptop text-muted mb-3" style="font-size: 4rem;"></i>
+            <h5 class="fw-bold">Ready for Calculation</h5>
+            <p class="text-muted small mb-0">Fill in the property feature parameters on the left and click <strong>Calculate Estimated Price</strong> to get an instant valuation.</p>
+        </div>
+        {% endif %}
+
+        <!-- Feature Importance Reference Card -->
+        <div class="card card-custom p-4 bg-white shadow-sm mt-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i>Top Valuation Drivers</h5>
+            <p class="text-muted small">Our model prioritizes: <strong>Overall Quality, Living Area (GrLivArea), Garage Capacity, Total Basement Area, and Construction Year</strong>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
