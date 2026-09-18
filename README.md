@@ -68,8 +68,6 @@ Django Web Application / DRF REST API
                         └──► Trained Model (models/best_model.pkl)
 ```
 
----
-
 ## 📁 Repository Folder Structure
 
 ```text
