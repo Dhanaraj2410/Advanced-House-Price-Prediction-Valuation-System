@@ -1,4 +1,3 @@
-
 # 🏠 House Price Prediction
 
 ## Project Overview
