@@ -200,10 +200,4 @@ Open `http://127.0.0.1:8000/` in your browser.
   ],
   "created_at": "2026-09-17T22:25:00Z"
 }
-```
 
----
-
-## 📝 License
-This project is open-source under the MIT License.
->>>>>>> a82914f (docs(readme): add comprehensive project README, architecture, and interview preparation)
