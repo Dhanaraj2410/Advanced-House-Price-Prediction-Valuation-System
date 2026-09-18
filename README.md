@@ -196,6 +196,7 @@ Open `http://127.0.0.1:8000/` in your browser.
   "created_at": "2026-09-17T22:25:00Z"
 }
 
+
 ## Author
 Dhanaraj Lokhande
 BE Information Technology | 2026 Graduate
