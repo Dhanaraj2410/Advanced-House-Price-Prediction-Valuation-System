@@ -1,18 +1,17 @@
-# 🏠 House Price Prediction
+# 🏠 House Price Prediction 
 
 ## Project Overview 
 
 A Machine Learning project that predicts house sale prices based on property features such as quality, living area, location, garage, and year built.
 
 ## Technologies
-
 * Python
 * Pandas & NumPy 
 * Matplotlib & Seaborn
 * Scikit-learn
 * Machine Learning Regression
 
-## ML Models
+## ML Models 
 
 * Linear Regression
 
@@ -198,6 +197,6 @@ Open `http://127.0.0.1:8000/` in your browser.
 
 
 ## Author
-Dhanaraj Lokhande
+**Dhanaraj Lokhande**
 BE Information Technology | 2026 Graduate
 
