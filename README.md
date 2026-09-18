@@ -32,9 +32,7 @@ A Machine Learning project that predicts house sale prices based on property fea
 
 **Ames Housing Dataset – Kaggle House Prices**
 
-## Author
-Dhanaraj Lokhande
-BE Information Technology | 2026 Graduate
+
 
 =======
 # 🏠 Advanced House Price Prediction & Valuation System
@@ -200,4 +198,8 @@ Open `http://127.0.0.1:8000/` in your browser.
   ],
   "created_at": "2026-09-17T22:25:00Z"
 }
+
+## Author
+Dhanaraj Lokhande
+BE Information Technology | 2026 Graduate
 
