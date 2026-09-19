@@ -1,6 +1,6 @@
 # 🏠 House Price Prediction 
 
-## Project Overview 
+## Project Overview  
 
 A Machine Learning project that predicts house sale prices based on property features such as quality, living area, location, garage, and year built.
 
