@@ -198,5 +198,5 @@ Open `http://127.0.0.1:8000/` in your browser.
 
 Author
 Dhanaraj Lokhande
-BE Information Technology | 2026 Graduate
+BE Information Technology | 2026 Graduate 
 
