@@ -63,7 +63,7 @@ Django Web Application / DRF REST API
               │
               └──► Preprocessor Pipeline (ml/preprocessing.py)
                         │
-                        └──► Trained Model (models/best_model.pkl)
+                        └──► Trained Model (models/best_model.pkl) 
 ```
 
 ## 📁 Repository Folder Structure
