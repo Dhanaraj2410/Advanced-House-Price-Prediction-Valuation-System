@@ -175,7 +175,7 @@ Open `http://127.0.0.1:8000/` in your browser.
 }
 ```
 
-### Response Example
+### Response Example  
 ```json
 {
   "id": 1,
