@@ -3,35 +3,82 @@
 {% block title %}Analytics Dashboard | House Price Valuation{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>ML Analytics & Model Insights Dashboard</h2>
-    <p class="text-muted">Exploratory Data Analysis and Feature Importance visualizations from model training.</p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>Valuation Analytics & Model Dashboard</h2>
+        <p class="text-muted mb-0">Exploratory Data Analysis, Model Leaderboard Benchmarks, and Real-Time Market Valuation Metrics.</p>
+    </div>
+    <a href="{% url 'predict' %}" class="btn btn-primary shadow-sm">
+        <i class="fa-solid fa-calculator me-1"></i>Predict New Property
+    </a>
 </div>
 
-<!-- Stats Row -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card card-custom p-4 bg-white shadow-sm border-start border-primary border-4">
-            <span class="text-muted text-uppercase small fw-bold">Total Valuations Saved</span>
-            <div class="display-6 fw-bold text-dark mt-2">{{ total }}</div>
+<!-- Key Performance Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card card-custom p-3 bg-white shadow-sm border-start border-primary border-4">
+            <span class="text-muted text-uppercase small fw-bold">Total Valuations</span>
+            <div class="h3 fw-bold text-dark mt-2 mb-0">{{ total }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-custom p-4 bg-white shadow-sm border-start border-success border-4">
-            <span class="text-muted text-uppercase small fw-bold">Average Predicted Price</span>
-            <div class="display-6 fw-bold text-success mt-2">${{ avg_price|floatformat:2 }}</div>
+    <div class="col-md-3">
+        <div class="card card-custom p-3 bg-white shadow-sm border-start border-success border-4">
+            <span class="text-muted text-uppercase small fw-bold">Average Valuation</span>
+            <div class="h3 fw-bold text-success mt-2 mb-0">${{ avg_price|floatformat:0 }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-custom p-4 bg-white shadow-sm border-start border-info border-4">
-            <span class="text-muted text-uppercase small fw-bold">Best Model Accuracy (R²)</span>
-            <div class="display-6 fw-bold text-info mt-2">0.9274</div>
+    <div class="col-md-3">
+        <div class="card card-custom p-3 bg-white shadow-sm border-start border-warning border-4">
+            <span class="text-muted text-uppercase small fw-bold">Max Property Valuation</span>
+            <div class="h3 fw-bold text-warning mt-2 mb-0">${{ max_price|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-custom p-3 bg-white shadow-sm border-start border-info border-4">
+            <span class="text-muted text-uppercase small fw-bold">Avg Price / SqFt</span>
+            <div class="h3 fw-bold text-info mt-2 mb-0">${{ avg_price_sqft|floatformat:2 }}</div>
         </div>
     </div>
 </div>
+
+{% if benchmark_report %}
+<!-- Model Architecture Leaderboard -->
+<div class="card card-custom p-4 bg-white shadow-sm mb-4">
+    <h5 class="fw-bold mb-3"><i class="fa-solid fa-trophy text-warning me-2"></i>Machine Learning Model Leaderboard</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Model Architecture</th>
+                    <th>MAE ($)</th>
+                    <th>RMSE ($)</th>
+                    <th>R² Accuracy</th>
+                    <th>MAPE (%)</th>
+                    <th>Training Time (s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in benchmark_report %}
+                <tr {% if forloop.first %}class="table-success fw-bold"{% endif %}>
+                    <td>
+                        {% if forloop.first %}<i class="fa-solid fa-crown text-warning me-1"></i>{% endif %}
+                        {{ item.model }}
+                    </td>
+                    <td>${{ item.mae|floatformat:2 }}</td>
+                    <td>${{ item.rmse|floatformat:2 }}</td>
+                    <td><span class="badge bg-primary fs-6">{{ item.r2_score }}</span></td>
+                    <td>{{ item.mape_percent }}%</td>
+                    <td>{{ item.fit_duration_sec }}s</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 
 <!-- Visualization Charts Grid -->
-<div class="row g-4">
+<div class="row g-4 mb-4">
     <div class="col-lg-6">
         <div class="card card-custom p-3 bg-white shadow-sm h-100">
             <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i>Top Important Features</h5>
@@ -46,15 +93,16 @@
     </div>
     <div class="col-lg-6">
         <div class="card card-custom p-3 bg-white shadow-sm h-100">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-area text-success me-2"></i>Sale Price Distribution</h5>
-            <img src="/static/eda/saleprice_dist.png" class="img-fluid rounded shadow-sm" alt="SalePrice Distribution">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-success me-2"></i>Model Benchmark Performance</h5>
+            <img src="/static/eda/model_benchmark.png" class="img-fluid rounded shadow-sm" alt="Model Benchmark Chart">
         </div>
     </div>
     <div class="col-lg-6">
         <div class="card card-custom p-3 bg-white shadow-sm h-100">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-table-cells text-warning me-2"></i>Top Feature Correlation Heatmap</h5>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-table-cells text-warning me-2"></i>Feature Correlation Heatmap</h5>
             <img src="/static/eda/correlation_heatmap.png" class="img-fluid rounded shadow-sm" alt="Correlation Heatmap">
         </div>
     </div>
 </div>
 {% endblock %}
+

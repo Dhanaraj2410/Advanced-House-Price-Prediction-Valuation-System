@@ -156,15 +156,49 @@ def export_history_csv_view(request):
     return response
 
 def dashboard_view(request):
-    """Render analytics dashboard with charts."""
+    """
+    Render analytics dashboard with metrics, EDA plots, and model benchmark comparisons.
+    """
     predictions = HousePrediction.objects.all()
     total = predictions.count()
-    avg_price = sum(p.predicted_price for p in predictions) / total if total > 0 else 0
     
+    if total > 0:
+        prices = [p.predicted_price for p in predictions]
+        avg_price = sum(prices) / total
+        max_price = max(prices)
+        min_price = min(prices)
+        
+        sqft_prices = [p.price_per_sqft for p in predictions if p.price_per_sqft]
+        avg_price_sqft = round(sum(sqft_prices) / len(sqft_prices), 2) if sqft_prices else 0
+    else:
+        avg_price = 0
+        max_price = 0
+        min_price = 0
+        avg_price_sqft = 0
+
+    # Valuation Tier Breakdown
+    tiers = ['Luxury Estate', 'Premium Residential', 'Mid-Range Suburban', 'Budget Friendly']
+    tier_counts = {t: HousePrediction.objects.filter(valuation_tier=t).count() for t in tiers}
+
+    # Load Benchmark Report JSON if available
+    benchmark_report = []
+    benchmark_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "benchmark_report.json")
+    if os.path.exists(benchmark_path):
+        try:
+            with open(benchmark_path, "r") as f:
+                benchmark_report = json.load(f)
+        except Exception:
+            pass
+
     return render(request, 'dashboard.html', {
         'total': total,
         'avg_price': round(avg_price, 2),
-        'predictions': predictions[:10]
+        'max_price': round(max_price, 2),
+        'min_price': round(min_price, 2),
+        'avg_price_sqft': avg_price_sqft,
+        'tier_counts': json.dumps(tier_counts),
+        'benchmark_report': benchmark_report,
+        'recent_predictions': predictions[:10]
     })
 
 def delete_history_view(request, pk):
