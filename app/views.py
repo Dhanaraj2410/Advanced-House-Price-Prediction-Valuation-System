@@ -49,6 +49,10 @@ def predict_view(request):
                 full_bath=data['full_bath'],
                 neighborhood=data['neighborhood'],
                 predicted_price=result['predicted_price'],
+                price_min=result.get('price_min'),
+                price_max=result.get('price_max'),
+                price_per_sqft=result.get('price_per_sqft'),
+                valuation_tier=result.get('valuation_tier', 'Mid-Range Suburban'),
                 insights_json=json.dumps(result['insights'])
             )
             
@@ -116,6 +120,11 @@ class PredictAPIView(APIView):
                 full_bath=feature_dict['FullBath'],
                 neighborhood=feature_dict['Neighborhood'],
                 predicted_price=res['predicted_price'],
+                price_min=res.get('price_min'),
+                price_max=res.get('price_max'),
+                price_per_sqft=res.get('price_per_sqft'),
+                valuation_tier=res.get('valuation_tier', 'Mid-Range Suburban'),
+                notes=data.get('notes', ''),
                 insights_json=json.dumps(res['insights'])
             )
             

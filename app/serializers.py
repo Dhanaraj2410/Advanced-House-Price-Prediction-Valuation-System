@@ -17,10 +17,15 @@ class HousePredictionSerializer(serializers.ModelSerializer):
             'full_bath',
             'neighborhood',
             'predicted_price',
+            'price_min',
+            'price_max',
+            'price_per_sqft',
+            'valuation_tier',
+            'notes',
             'insights',
             'created_at'
         ]
-        read_only_fields = ['id', 'predicted_price', 'insights', 'created_at']
+        read_only_fields = ['id', 'predicted_price', 'price_min', 'price_max', 'price_per_sqft', 'valuation_tier', 'insights', 'created_at']
 
     def get_insights(self, obj):
         try:

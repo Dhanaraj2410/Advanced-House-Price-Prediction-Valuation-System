@@ -13,6 +13,11 @@ class HousePrediction(models.Model):
     neighborhood = models.CharField(max_length=50, default="NAmes", help_text="Physical location within Ames city bounds")
     
     predicted_price = models.FloatField(help_text="Estimated Sale Price ($)")
+    price_min = models.FloatField(null=True, blank=True, help_text="Valuation lower bound ($)")
+    price_max = models.FloatField(null=True, blank=True, help_text="Valuation upper bound ($)")
+    price_per_sqft = models.FloatField(null=True, blank=True, help_text="Price per sq ft ($)")
+    valuation_tier = models.CharField(max_length=50, default="Mid-Range Suburban", help_text="Valuation classification category")
+    notes = models.TextField(blank=True, default="", help_text="Optional user notes or property details")
     insights_json = models.TextField(blank=True, default="[]", help_text="AI feature influence insights")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -21,3 +26,4 @@ class HousePrediction(models.Model):
 
     def __str__(self):
         return f"Prediction #{self.id}: ${self.predicted_price:,.2f} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+
