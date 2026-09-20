@@ -3,14 +3,49 @@
 {% block title %}Prediction History | House Price Valuation{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h2 class="fw-bold mb-1"><i class="fa-solid fa-history text-primary me-2"></i>Prediction History</h2>
-        <p class="text-muted mb-0">Complete log of all property valuations saved in your database.</p>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Valuation History</h2>
+        <p class="text-muted mb-0">Search, filter, and export recorded property valuation histories.</p>
     </div>
-    <a href="{% url 'predict' %}" class="btn btn-primary shadow-sm">
-        <i class="fa-solid fa-plus me-1"></i>New Valuation
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'export_history_csv' %}" class="btn btn-outline-success shadow-sm">
+            <i class="fa-solid fa-file-csv me-1"></i>Export CSV
+        </a>
+        <a href="{% url 'predict' %}" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i>New Valuation
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="card card-custom p-3 bg-white shadow-sm mb-4">
+    <form method="GET" action="{% url 'history' %}" class="row g-2 align-items-center">
+        <div class="col-md-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search neighborhood or notes...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="neighborhood" class="form-select form-select-sm">
+                <option value="">All Neighborhoods</option>
+                {% for n in neighborhoods %}
+                <option value="{{ n }}" {% if neighborhood == n %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="min_price" value="{{ min_price }}" class="form-control form-control-sm" placeholder="Min Price ($)">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="max_price" value="{{ max_price }}" class="form-control form-control-sm" placeholder="Max Price ($)">
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+            <a href="{% url 'history' %}" class="btn btn-light btn-sm"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
 </div>
 
 <div class="card card-custom p-4 bg-white shadow-sm">
@@ -20,14 +55,13 @@
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
+                    <th>Neighborhood</th>
                     <th>Quality</th>
                     <th>Living Area</th>
-                    <th>Built Year</th>
-                    <th>Garage Cars</th>
-                    <th>Basement</th>
-                    <th>Bathrooms</th>
-                    <th>Neighborhood</th>
-                    <th>Predicted Price</th>
+                    <th>Built</th>
+                    <th>Valuation Tier</th>
+                    <th>Estimated Price</th>
+                    <th>Price / SqFt</th>
                     <th>Date</th>
                     <th class="text-end">Action</th>
                 </tr>
@@ -36,14 +70,28 @@
                 {% for pred in predictions %}
                 <tr>
                     <td><strong>#{{ pred.id }}</strong></td>
+                    <td><span class="fw-semibold">{{ pred.neighborhood }}</span></td>
                     <td><span class="badge bg-primary">{{ pred.overall_qual }}/10</span></td>
                     <td>{{ pred.gr_liv_area|floatformat:0 }} sq ft</td>
                     <td>{{ pred.year_built }}</td>
-                    <td>{{ pred.garage_cars }}</td>
-                    <td>{{ pred.total_bsmt_sf|floatformat:0 }} sq ft</td>
-                    <td>{{ pred.full_bath }}</td>
-                    <td>{{ pred.neighborhood }}</td>
-                    <td class="text-success fw-bold">${{ pred.predicted_price|floatformat:2 }}</td>
+                    <td>
+                        {% if pred.valuation_tier == 'Luxury Estate' %}
+                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-crown me-1"></i>Luxury</span>
+                        {% elif pred.valuation_tier == 'Premium Residential' %}
+                            <span class="badge bg-info text-dark">Premium</span>
+                        {% elif pred.valuation_tier == 'Mid-Range Suburban' %}
+                            <span class="badge bg-secondary">Mid-Range</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark border">Budget</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="text-success fw-bold">${{ pred.predicted_price|floatformat:2 }}</span>
+                        {% if pred.price_min and pred.price_max %}
+                        <div class="text-muted small">${{ pred.price_min|floatformat:0 }} - ${{ pred.price_max|floatformat:0 }}</div>
+                        {% endif %}
+                    </td>
+                    <td>{% if pred.price_per_sqft %}${{ pred.price_per_sqft|floatformat:2 }}/sqft{% else %}-{% endif %}</td>
                     <td class="text-muted small">{{ pred.created_at|date:"M d, Y H:i" }}</td>
                     <td class="text-end">
                         <a href="{% url 'delete_history' pred.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete prediction #{{ pred.id }}?');">
@@ -55,13 +103,45 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj and page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&neighborhood={{ neighborhood }}&min_price={{ min_price }}&max_price={{ max_price }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}&q={{ search_query }}&neighborhood={{ neighborhood }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&neighborhood={{ neighborhood }}&min_price={{ min_price }}&max_price={{ max_price }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
     {% else %}
     <div class="text-center py-5">
         <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
-        <h5>No History Records</h5>
-        <p class="text-muted">Start predicting home prices to record historical valuations.</p>
-        <a href="{% url 'predict' %}" class="btn btn-primary mt-2">Go to Valuation Predictor</a>
+        <h5>No History Records Found</h5>
+        <p class="text-muted">No valuation records match your current filter query.</p>
+        <a href="{% url 'history' %}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+        <a href="{% url 'predict' %}" class="btn btn-primary">Go to Valuation Predictor</a>
     </div>
     {% endif %}
 </div>
 {% endblock %}
+

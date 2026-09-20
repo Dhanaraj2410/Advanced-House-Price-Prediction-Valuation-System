@@ -5,6 +5,8 @@ import pandas as pd
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
+from django.db.models import Q
+from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -71,9 +73,87 @@ def predict_view(request):
     return render(request, 'predict.html', {'form': form})
 
 def history_view(request):
-    """Render prediction history table."""
-    predictions = HousePrediction.objects.all()
-    return render(request, 'history.html', {'predictions': predictions})
+    """
+    Render prediction history table with search query, filters, ordering, and pagination.
+    """
+    search_query = request.GET.get('q', '').strip()
+    neighborhood = request.GET.get('neighborhood', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+    sort_by = request.GET.get('sort', '-created_at')
+
+    queryset = HousePrediction.objects.all()
+
+    if search_query:
+        queryset = queryset.filter(
+            Q(neighborhood__icontains=search_query) |
+            Q(valuation_tier__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+
+    if neighborhood:
+        queryset = queryset.filter(neighborhood__iexact=neighborhood)
+
+    if min_price:
+        try:
+            queryset = queryset.filter(predicted_price__gte=float(min_price))
+        except ValueError:
+            pass
+
+    if max_price:
+        try:
+            queryset = queryset.filter(predicted_price__lte=float(max_price))
+        except ValueError:
+            pass
+
+    valid_sorts = ['created_at', '-created_at', 'predicted_price', '-predicted_price', 'overall_qual', '-overall_qual']
+    if sort_by in valid_sorts:
+        queryset = queryset.order_by(sort_by)
+    else:
+        queryset = queryset.order_by('-created_at')
+
+    paginator = Paginator(queryset, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    neighborhoods = HousePrediction.objects.values_list('neighborhood', flat=True).distinct().order_by('neighborhood')
+
+    return render(request, 'history.html', {
+        'page_obj': page_obj,
+        'predictions': page_obj.object_list,
+        'search_query': search_query,
+        'neighborhood': neighborhood,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'neighborhoods': neighborhoods
+    })
+
+def export_history_csv_view(request):
+    """
+    GET /history/export/
+    Exports prediction history to downloadable CSV attachment.
+    """
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="house_price_prediction_history.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'ID', 'Neighborhood', 'Overall Quality', 'Living Area (sq ft)',
+        'Total Basement (sq ft)', 'Year Built', 'Garage Cars', 'Full Bath',
+        'Predicted Price ($)', 'Min Range ($)', 'Max Range ($)', 'Price / SqFt ($)',
+        'Valuation Tier', 'Created At'
+    ])
+
+    for p in HousePrediction.objects.all().order_by('-created_at'):
+        writer.writerow([
+            p.id, p.neighborhood, p.overall_qual, p.gr_liv_area,
+            p.total_bsmt_sf, p.year_built, p.garage_cars, p.full_bath,
+            p.predicted_price, p.price_min or '', p.price_max or '', p.price_per_sqft or '',
+            p.valuation_tier, p.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+
+    return response
 
 def dashboard_view(request):
     """Render analytics dashboard with charts."""

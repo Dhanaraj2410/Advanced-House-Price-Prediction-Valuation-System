@@ -6,6 +6,7 @@ urlpatterns = [
     path('predict/', views.predict_view, name='predict'),
     path('predict/bulk/', views.bulk_predict_view, name='bulk_predict'),
     path('history/', views.history_view, name='history'),
+    path('history/export/', views.export_history_csv_view, name='export_history_csv'),
     path('history/delete/<int:pk>/', views.delete_history_view, name='delete_history'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     
