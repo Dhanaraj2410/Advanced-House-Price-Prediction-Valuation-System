@@ -1,66 +1,41 @@
-# 🏠 House Price Prediction 
-
-## Project Overview 
-
-A Machine Learning project that predicts house sale prices based on property features such as quality, living area, location, garage, and year built.
-
-## Technologies
-* Python
-* Pandas & NumPy 
-* Matplotlib & Seaborn
-* Scikit-learn
-* Machine Learning Regression
-
-## Workflow
-
-1. Data Cleaning
-2. Exploratory Data Analysis
-3. Feature Engineering
-4. Data Preprocessing
-5. Model Training
-6. Model Evaluation
-7. Hyperparameter Tuning
-8. House Price Prediction
-
-## Dataset 
-
-**Ames Housing Dataset – Kaggle House Prices**
-
-
-
-=======
 # 🏠 Advanced House Price Prediction & Valuation System
 
-An end-to-end Machine Learning Regression & Production Django Web Application that predicts residential property sale prices using structural, spatial, and quality features from the Ames Housing Dataset.
+An end-to-end Machine Learning Regression & Production Django Web Application that predicts residential property sale prices using structural, spatial, quality, and domain-engineered features from the Ames Housing Dataset.
 
 ---
 
 ## 📌 Project Overview
 - **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.
 - **Target Variable**: `SalePrice` (Log-transformed `np.log1p` during training for variance stabilization).
-- **Core Algorithms Evaluated**: Linear Regression, Ridge, Lasso, Decision Tree, Random Forest, Gradient Boosting, and XGBoost.
-- **Top Model Metrics**: Tuned Gradient Boosting Regressor achieving **$14,108.70 MAE**, **$20,023.42 RMSE**, and **0.9274 R² Score** with **0.1204 Mean CV RMSE**.
-- **Backend Infrastructure**: Django REST Framework + MySQL Database (`house_price_db`) with prediction history logging and automated AI feature influence insights.
-- **Frontend Dashboard**: Responsive Bootstrap 5 interface with interactive property valuation forms and EDA chart visualizations.
+- **Core Algorithms Evaluated**: Linear Regression, Ridge, Lasso, Decision Tree, Random Forest, Gradient Boosting, XGBoost, and Stacking Ensemble.
+- **Top Model Performance**: Stacking Regressor & Tuned Lasso Regressor achieving **$14,028 MAE**, **$19,896 RMSE**, and **0.9283 R² Score** with **0.1188 Mean CV RMSE**.
+- **Valuation Confidence**: Automated confidence bounds ($\pm 6.5\%$ standard error interval), price per sq. ft. metrics, valuation tier classification (`Luxury Estate`, `Premium Residential`, `Mid-Range Suburban`, `Budget Friendly`), and dynamic AI feature influence drivers.
+- **Batch CSV Processing**: Upload bulk property CSVs via web interface (`/predict/bulk/`) or REST API (`/api/predict/bulk/`) for high-throughput automated valuation.
+- **Searchable History & CSV Export**: Filter prediction records by neighborhood, price range, and search query with full pagination and downloadable CSV history reports (`/history/export/`).
+- **Developer & CLI Workflows**: Custom Django management commands (`python manage.py retrain_model`, `python manage.py seed_history`) and OpenAPI schema documentation (`/api/schema/`).
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ System Architecture
 
-```
-User (Browser / API Client)
+```text
+User (Web UI / API Client)
     │
     ▼
-Django Web Application / DRF REST API
+Django Web Application & DRF REST API (app/)
     │
-    ├──► MySQL Database (house_price_db: Prediction History)
+    ├──► Database Storage (HousePrediction Model with confidence bounds & tags)
     │
-    └──► Modular ML Inference Pipeline (ml/predict.py)
+    ├──► Bulk Valuation & CSV Export Handler (pandas / csv engine)
+    │
+    └──► Modular ML Inference Engine (ml/predict.py)
               │
-              └──► Preprocessor Pipeline (ml/preprocessing.py)
-                        │
-                        └──► Trained Model (models/best_model.pkl) 
+              ├──► Domain Feature Engineer (TotalSF, TotalBath, Quality_LivArea, QualityAgeRatio)
+              │
+              └──► Preprocessor Pipeline & Stacking Regressor (models/best_model.pkl)
 ```
+
+---
 
 ## 📁 Repository Folder Structure
 
@@ -77,16 +52,34 @@ House_Price_Prediction/
 │   ├── eda.py                    # Visualizations & distribution analysis
 │   ├── preprocessing.py          # Custom FeatureEngineer & ColumnTransformer
 │   ├── train.py                  # Model benchmark, tuning, CV, joblib export
-│   └── predict.py                # Production prediction API & insights wrapper
+│   ├── predict.py                # Production prediction API & insights wrapper
+│   ├── benchmark.py              # Metrics benchmarking & JSON report generator
+│   └── tests.py                  # ML pipeline & transformation unit tests
 │
 ├── models/
-│   └── best_model.pkl            # Serialized Scikit-Learn pipeline
+│   ├── best_model.pkl            # Serialized Scikit-Learn pipeline
+│   └── benchmark_report.json     # Automated JSON model leaderboard report
 │
-├── config/                       # Django project settings & MySQL routing
-├── app/                          # Django application (models, views, DRF serializers)
-├── templates/                    # Bootstrap 5 HTML templates
+├── config/                       # Django project settings & URL routing
+├── app/                          # Django web app (models, views, forms, serializers, management commands)
+│   ├── management/commands/
+│   │   ├── retrain_model.py     # CLI command to retrain model & generate benchmarks
+│   │   └── seed_history.py      # CLI command to seed realistic test valuation records
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── forms.py
+│   └── tests.py                  # Web view & REST API integration test suite
+│
+├── templates/                    # Responsive Bootstrap 5 HTML templates
+│   ├── base.html                 # Main layout & navigation
+│   ├── home.html                 # Landing page
+│   ├── predict.html              # Single property & bulk CSV upload form
+│   ├── dashboard.html            # Analytics dashboard & benchmark leaderboard
+│   └── history.html              # Filterable history table with pagination & CSV export
+│
 ├── static/
-│   └── eda/                      # High-resolution charts & feature importance plots
+│   └── eda/                      # High-resolution benchmark & feature importance plots
 │
 ├── submission.csv                # Kaggle test dataset predictions
 ├── manage.py
@@ -99,100 +92,105 @@ House_Price_Prediction/
 
 ## 📊 Machine Learning Model Leaderboard
 
-| Model | MAE ($) | RMSE ($) | R² Score |
-| :--- | :---: | :---: | :---: |
-| **Tuned Gradient Boosting** | **$14,108.70** | **$20,023.42** | **0.9274** |
-| **Lasso Regression** | $14,183.80 | $19,571.46 | 0.9307 |
-| **XGBoost** | $14,224.54 | $20,059.30 | 0.9272 |
-| **Ridge Regression** | $14,437.50 | $19,995.37 | 0.9276 |
-| **Linear Regression** | $15,372.76 | $21,652.12 | 0.9151 |
-| **Random Forest** | $16,407.76 | $23,611.41 | 0.8991 |
-| **Decision Tree** | $28,617.68 | $43,020.82 | 0.6649 |
+| Model Architecture | MAE ($) | RMSE ($) | R² Score | MAPE (%) | Fit Time (s) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Stacking Ensemble** | **$14,028.62** | **$19,942.50** | **0.9280** | **8.71%** | 8.83s |
+| **Lasso Regression** | **$14,323.62** | **$19,896.15** | **0.9283** | **8.71%** | 0.19s |
+| **Ridge Regression** | $14,526.46 | $20,237.65 | 0.9259 | 8.94% | 0.07s |
+| **XGBoost** | $14,773.23 | $20,963.95 | 0.9204 | 9.04% | 0.39s |
+| **Gradient Boosting** | $15,027.94 | $20,964.25 | 0.9204 | 9.27% | 1.73s |
+| **Linear Regression** | $15,357.12 | $21,636.24 | 0.9153 | 9.49% | 0.20s |
+| **Random Forest** | $16,183.30 | $24,314.31 | 0.8930 | 9.83% | 1.31s |
+| **Decision Tree** | $22,004.69 | $30,815.66 | 0.8281 | 13.37% | 0.08s |
 
 ---
 
-## 🚀 Quickstart & Setup Guide
+## 🛠️ CLI Management Commands
 
-### 1. Prerequisites & Virtual Environment
+### Retrain Model & Generate Benchmarks
 ```powershell
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
+python manage.py retrain_model --benchmark
 ```
 
-### 2. Run Data Analysis & Model Training
+### Seed Test Prediction History
 ```powershell
-# 1. Dataset Verification
-python -m ml.dataset
-
-# 2. Generate EDA Plots
-python -m ml.eda
-
-# 3. Train & Evaluate Models (Saves best_model.pkl & submission.csv)
-python -m ml.train
+python manage.py seed_history --clear
 ```
-
-### 3. Database Setup & Server Launch
-```powershell
-# Setup MySQL Database
-python scratch/create_db.py
-
-# Apply Migrations
-python manage.py makemigrations app
-python manage.py migrate
-
-# Launch Django Server
-python manage.py runserver
-```
-
-Open `http://127.0.0.1:8000/` in your browser.
 
 ---
 
-## 🔌 REST API Endpoints
+## 🔌 REST API Endpoints & OpenAPI Documentation
+
+OpenAPI Schema Route: `GET /api/schema/`
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/predict/` | Submit house features & get predicted sale price + insights |
-| `GET` | `/api/predictions/` | Fetch historical predictions log |
+| `POST` | `/api/predict/` | Single property valuation & feature insights |
+| `POST` | `/api/predict/bulk/` | Batch valuation from JSON list or CSV file upload |
+| `GET` | `/api/predictions/` | Fetch historical predictions list |
 | `GET` | `/api/predictions/<id>/` | Fetch single prediction record |
-| `DELETE` | `/api/predictions/<id>/` | Delete historical prediction record |
+| `DELETE` | `/api/predictions/<id>/` | Delete prediction record |
+| `GET` | `/api/schema/` | Generate OpenAPI 3.0 API schema |
 
-### Request Payload Example (`POST /api/predict/`)
+### Single Property Request Example (`POST /api/predict/`)
 ```json
 {
   "overall_qual": 8,
   "gr_liv_area": 2100,
   "year_built": 2015,
-  "garage_cars": 2,
+  "garage_cars": 3,
   "total_bsmt_sf": 1100,
   "full_bath": 2,
   "neighborhood": "NridgHt"
 }
 ```
 
-### Response Example  
+### Single Property Response Example
 ```json
 {
   "id": 1,
   "overall_qual": 8,
   "gr_liv_area": 2100.0,
   "year_built": 2015,
-  "garage_cars": 2,
+  "garage_cars": 3,
   "total_bsmt_sf": 1100.0,
   "full_bath": 2,
   "neighborhood": "NridgHt",
-  "predicted_price": 284520.15,
+  "predicted_price": 226818.57,
+  "price_min": 212075.36,
+  "price_max": 241561.78,
+  "price_per_sqft": 108.01,
+  "valuation_tier": "Mid-Range Suburban",
   "insights": [
     "High Overall Quality rating (8/10) significantly boosts property valuation.",
-    "Spacious living area (2100 sq ft) adds substantial valuation premium.",
-    "Modern construction (Built 2015) commands high modern buyer appeal."
+    "Spacious living area (2,100 sq ft) adds substantial valuation premium.",
+    "Modern construction (Built 2015) commands strong buyer appeal."
   ],
-  "created_at": "2026-09-17T22:25:00Z"
+  "created_at": "2026-09-20T22:35:00Z"
 }
+```
 
+---
 
-Author
-Dhanaraj Lokhande
-BE Information Technology | 2026 Graduate 
+## 🧪 Automated Testing & Verification
 
+Run the full Django web & REST API test suite:
+```powershell
+python manage.py test
+```
+
+Run the dedicated ML pipeline unit test suite:
+```powershell
+python -m unittest ml/tests.py
+```
+
+Run model evaluation benchmarking:
+```powershell
+python -m ml.benchmark
+```
+
+---
+
+## 📝 Author & License
+- **Author**: Dhanaraj Lokhande (BE Information Technology)
+- **License**: Open-source under the MIT License.
