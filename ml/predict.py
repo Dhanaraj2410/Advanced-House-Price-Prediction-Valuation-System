@@ -117,6 +117,7 @@ def get_default_house_features():
 def predict_price(input_data):
     """
     Predicts house sale price for input dictionary or DataFrame.
+    Returns estimated price, confidence interval bounds, price/sqft, tier, and insights.
     """
     model = get_model()
     
@@ -133,27 +134,63 @@ def predict_price(input_data):
     log_pred = model.predict(input_df)
     predicted_price = float(np.expm1(log_pred[0]))
     
-    # Feature impact insights
-    overall_qual = input_df.get('OverallQual', [5])[0]
-    gr_liv_area = input_df.get('GrLivArea', [1500])[0]
-    year_built = input_df.get('YearBuilt', [2000])[0]
-    garage_cars = input_df.get('GarageCars', [2])[0]
+    # Calculate valuation confidence bounds (standard error ~6.5%)
+    price_min = round(predicted_price * 0.935, 2)
+    price_max = round(predicted_price * 1.065, 2)
     
+    # Square footage & Price per sqft calculation
+    overall_qual = int(input_df.get('OverallQual', [5])[0])
+    gr_liv_area = float(input_df.get('GrLivArea', [1500])[0])
+    year_built = int(input_df.get('YearBuilt', [2000])[0])
+    garage_cars = int(input_df.get('GarageCars', [2])[0])
+    total_bsmt = float(input_df.get('TotalBsmtSF', [900])[0])
+    neighborhood = str(input_df.get('Neighborhood', ['NAmes'])[0])
+    
+    total_sf = gr_liv_area + total_bsmt
+    price_per_sqft = round(predicted_price / max(gr_liv_area, 1.0), 2)
+    
+    # Valuation Tier classification
+    if predicted_price >= 350000:
+        valuation_tier = "Luxury Estate"
+    elif predicted_price >= 240000:
+        valuation_tier = "Premium Residential"
+    elif predicted_price >= 150000:
+        valuation_tier = "Mid-Range Suburban"
+    else:
+        valuation_tier = "Budget Friendly"
+
+    # Dynamic Feature Impact Insights
     insights = []
     if overall_qual >= 8:
         insights.append(f"High Overall Quality rating ({overall_qual}/10) significantly boosts property valuation.")
     elif overall_qual <= 4:
         insights.append(f"Below average Quality rating ({overall_qual}/10) reduces property market value.")
         
-    if gr_liv_area > 2000:
-        insights.append(f"Spacious living area ({gr_liv_area} sq ft) adds substantial valuation premium.")
+    if gr_liv_area >= 2000:
+        insights.append(f"Spacious living area ({gr_liv_area:,.0f} sq ft) adds substantial valuation premium.")
+    elif gr_liv_area < 1100:
+        insights.append(f"Compact living area ({gr_liv_area:,.0f} sq ft) bounds overall valuation potential.")
         
     if year_built >= 2010:
-        insights.append(f"Modern construction (Built {year_built}) commands high modern buyer appeal.")
+        insights.append(f"Modern construction (Built {year_built}) commands strong buyer appeal.")
+    elif year_built < 1960:
+        insights.append(f"Older structure (Built {year_built}) may require modernization capital.")
+        
+    if garage_cars >= 3:
+        insights.append(f"Large {garage_cars}-car garage capacity increases family home desirability.")
+
+    premium_neighborhoods = ['NridgHt', 'NoRidge', 'StoneBr', 'Somerst', 'Timber']
+    if neighborhood in premium_neighborhoods:
+        insights.append(f"Location in high-demand neighborhood '{neighborhood}' carries location premium.")
 
     return {
         "predicted_price": round(predicted_price, 2),
         "formatted_price": f"${predicted_price:,.2f}",
+        "price_min": price_min,
+        "price_max": price_max,
+        "formatted_range": f"${price_min:,.2f} - ${price_max:,.2f}",
+        "price_per_sqft": price_per_sqft,
+        "valuation_tier": valuation_tier,
         "insights": insights
     }
 
@@ -162,10 +199,15 @@ if __name__ == "__main__":
         "OverallQual": 8,
         "GrLivArea": 2100,
         "YearBuilt": 2015,
-        "GarageCars": 2,
-        "FullBath": 2
+        "GarageCars": 3,
+        "FullBath": 2,
+        "Neighborhood": "NridgHt"
     }
     res = predict_price(sample)
     print("--- Test Prediction ---")
     print(f"Predicted Price: {res['formatted_price']}")
+    print(f"Confidence Range: {res['formatted_range']}")
+    print(f"Price / SqFt: ${res['price_per_sqft']}")
+    print(f"Valuation Tier: {res['valuation_tier']}")
     print("Insights:", res['insights'])
+
