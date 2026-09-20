@@ -1,0 +1,66 @@
+[
+  {
+    "model": "Linear Regression",
+    "mae": 15357.12,
+    "rmse": 21636.24,
+    "r2_score": 0.9153,
+    "mape_percent": 9.49,
+    "fit_duration_sec": 0.195
+  },
+  {
+    "model": "Ridge Regression",
+    "mae": 14526.46,
+    "rmse": 20237.65,
+    "r2_score": 0.9259,
+    "mape_percent": 8.94,
+    "fit_duration_sec": 0.065
+  },
+  {
+    "model": "Lasso Regression",
+    "mae": 14323.62,
+    "rmse": 19896.15,
+    "r2_score": 0.9283,
+    "mape_percent": 8.71,
+    "fit_duration_sec": 0.194
+  },
+  {
+    "model": "Decision Tree",
+    "mae": 22004.69,
+    "rmse": 30815.66,
+    "r2_score": 0.8281,
+    "mape_percent": 13.37,
+    "fit_duration_sec": 0.078
+  },
+  {
+    "model": "Random Forest",
+    "mae": 16136.99,
+    "rmse": 24243.5,
+    "r2_score": 0.8936,
+    "mape_percent": 9.83,
+    "fit_duration_sec": 1.314
+  },
+  {
+    "model": "Gradient Boosting",
+    "mae": 15185.61,
+    "rmse": 21365.64,
+    "r2_score": 0.9174,
+    "mape_percent": 9.27,
+    "fit_duration_sec": 1.733
+  },
+  {
+    "model": "XGBoost",
+    "mae": 14928.91,
+    "rmse": 21236.47,
+    "r2_score": 0.9184,
+    "mape_percent": 9.04,
+    "fit_duration_sec": 0.385
+  },
+  {
+    "model": "Stacking Ensemble",
+    "mae": 14189.39,
+    "rmse": 20146.06,
+    "r2_score": 0.9265,
+    "mape_percent": 8.71,
+    "fit_duration_sec": 8.827
+  }
+]
