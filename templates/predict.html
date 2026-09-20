@@ -7,56 +7,92 @@
     <!-- Form Column -->
     <div class="col-lg-7">
         <div class="card card-custom p-4 bg-white shadow-sm">
-            <h3 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>House Characteristics Form</h3>
-            <p class="text-muted mb-4">Enter property specifications to compute the estimated market sale price.</p>
+            <ul class="nav nav-pills mb-4 border-bottom pb-3" id="predictTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="single-tab" data-bs-toggle="tab" data-bs-target="#single-predict" type="button" role="tab">
+                        <i class="fa-solid fa-house-chimney me-2"></i>Single Property Valuation
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="batch-tab" data-bs-toggle="tab" data-bs-target="#batch-predict" type="button" role="tab">
+                        <i class="fa-solid fa-file-csv me-2"></i>Bulk CSV Upload
+                    </button>
+                </li>
+            </ul>
 
-            <form method="post" action="{% url 'predict' %}">
-                {% csrf_token %}
-                
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Overall Quality (1-10)</label>
-                        {{ form.overall_qual }}
-                        <div class="form-text">1 = Poor, 5 = Average, 10 = Very Excellent</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Above Grade Living Area (sq ft)</label>
-                        {{ form.gr_liv_area }}
-                    </div>
+            <div class="tab-content" id="predictTabContent">
+                <!-- Single Predict Form -->
+                <div class="tab-pane fade show active" id="single-predict" role="tabpanel">
+                    <p class="text-muted mb-4">Enter property specifications to compute estimated market sale price & valuation insights.</p>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Year Built</label>
-                        {{ form.year_built }}
-                    </div>
+                    <form method="post" action="{% url 'predict' %}">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Overall Quality (1-10)</label>
+                                {{ form.overall_qual }}
+                                <div class="form-text">1 = Poor, 5 = Average, 10 = Excellent</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Above Grade Living Area (sq ft)</label>
+                                {{ form.gr_liv_area }}
+                            </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Garage Car Capacity</label>
-                        {{ form.garage_cars }}
-                    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Year Built</label>
+                                {{ form.year_built }}
+                            </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Total Basement Area (sq ft)</label>
-                        {{ form.total_bsmt_sf }}
-                    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Garage Car Capacity</label>
+                                {{ form.garage_cars }}
+                            </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Bathrooms</label>
-                        {{ form.full_bath }}
-                    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Total Basement Area (sq ft)</label>
+                                {{ form.total_bsmt_sf }}
+                            </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Neighborhood Location</label>
-                        {{ form.neighborhood }}
-                    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Full Bathrooms</label>
+                                {{ form.full_bath }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Neighborhood Location</label>
+                                {{ form.neighborhood }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 font-weight-bold shadow">
+                            <i class="fa-solid fa-calculator me-2"></i>Calculate Estimated Price
+                        </button>
+                    </form>
                 </div>
 
-                <hr class="my-4">
+                <!-- Batch CSV Upload Form -->
+                <div class="tab-pane fade" id="batch-predict" role="tabpanel">
+                    <div class="text-center py-3">
+                        <i class="fa-solid fa-cloud-arrow-up text-primary mb-3" style="font-size: 3.5rem;"></i>
+                        <h5 class="fw-bold">Upload Batch Property CSV File</h5>
+                        <p class="text-muted small">Upload a CSV containing columns: <code>OverallQual</code>, <code>GrLivArea</code>, <code>YearBuilt</code>, <code>GarageCars</code>, <code>TotalBsmtSF</code>, <code>FullBath</code>, <code>Neighborhood</code>.</p>
+                    </div>
 
-                <button type="submit" class="btn btn-primary btn-lg w-100 font-weight-bold shadow">
-                    <i class="fa-solid fa-calculator me-2"></i>Calculate Estimated Price
-                </button>
-            </form>
+                    <form method="post" action="{% url 'bulk_predict' %}" enctype="multipart/form-data" class="mt-3">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <input class="form-control form-control-lg" type="file" name="csv_file" accept=".csv" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow">
+                            <i class="fa-solid fa-file-import me-2"></i>Process Bulk Valuation CSV
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -64,12 +100,29 @@
     <div class="col-lg-5">
         {% if result %}
         <div class="card card-custom p-4 bg-white text-center border-primary shadow mb-4">
-            <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill mx-auto mb-3">Predicted Valuation</span>
-            <div class="price-badge mb-2">{{ result.formatted_price }}</div>
-            <p class="text-muted small">Estimated Sale Price based on Gradient Boosting Pipeline</p>
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill">Predicted Valuation</span>
+                {% if result.valuation_tier %}
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fa-solid fa-tag me-1"></i>{{ result.valuation_tier }}</span>
+                {% endif %}
+            </div>
+
+            <div class="price-badge mb-1 text-primary">{{ result.formatted_price }}</div>
+            
+            {% if result.formatted_range %}
+            <div class="text-muted fw-semibold mb-3">
+                <i class="fa-solid fa-chart-line me-1"></i>Confidence Bounds: {{ result.formatted_range }}
+            </div>
+            {% endif %}
+
+            {% if result.price_per_sqft %}
+            <div class="badge bg-light text-dark border p-2 mb-3 fs-6">
+                Estimated Price / SqFt: <strong>${{ result.price_per_sqft }}</strong>
+            </div>
+            {% endif %}
 
             {% if result.insights %}
-            <div class="text-start bg-light p-3 rounded mt-3">
+            <div class="text-start bg-light p-3 rounded mt-2">
                 <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-lightbulb text-warning me-2"></i>AI Valuation Drivers:</h6>
                 <ul class="mb-0 small text-muted ps-3">
                     {% for insight in result.insights %}
@@ -79,19 +132,56 @@
             </div>
             {% endif %}
         </div>
+
+        {% elif bulk_records %}
+        <div class="card card-custom p-4 bg-white shadow mb-4">
+            <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-circle-check me-2"></i>Batch Valuation Complete</h5>
+            <p class="text-muted small">Successfully evaluated <strong>{{ bulk_records|length }}</strong> properties from uploaded CSV.</p>
+            
+            <div class="table-responsive" style="max-height: 250px;">
+                <table class="table table-sm table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Neighborhood</th>
+                            <th>Valuation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in bulk_records %}
+                        <tr>
+                            <td>#{{ r.id }}</td>
+                            <td>{{ r.neighborhood }}</td>
+                            <td class="text-success fw-bold">${{ r.predicted_price|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'history' %}" class="btn btn-outline-primary btn-sm mt-3 w-100">View All in History</a>
+        </div>
+
         {% else %}
-        <div class="card card-custom p-4 bg-white text-center shadow-sm">
+        <div class="card card-custom p-4 bg-white text-center shadow-sm mb-4">
             <i class="fa-solid fa-house-laptop text-muted mb-3" style="font-size: 4rem;"></i>
             <h5 class="fw-bold">Ready for Calculation</h5>
-            <p class="text-muted small mb-0">Fill in the property feature parameters on the left and click <strong>Calculate Estimated Price</strong> to get an instant valuation.</p>
+            <p class="text-muted small mb-0">Fill in the property parameters on the left and click <strong>Calculate Estimated Price</strong> to get an instant AI valuation.</p>
         </div>
         {% endif %}
 
         <!-- Feature Importance Reference Card -->
-        <div class="card card-custom p-4 bg-white shadow-sm mt-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i>Top Valuation Drivers</h5>
-            <p class="text-muted small">Our model prioritizes: <strong>Overall Quality, Living Area (GrLivArea), Garage Capacity, Total Basement Area, and Construction Year</strong>.</p>
+        <div class="card card-custom p-4 bg-white shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-award text-primary me-2"></i>Valuation Engine Drivers</h5>
+            <p class="text-muted small mb-2">Our model uses Stacking Regressor & Gradient Boosting trained on Ames housing metrics.</p>
+            <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-light text-dark border">Overall Quality</span>
+                <span class="badge bg-light text-dark border">Living Area (GrLivArea)</span>
+                <span class="badge bg-light text-dark border">Garage Capacity</span>
+                <span class="badge bg-light text-dark border">Basement Area</span>
+                <span class="badge bg-light text-dark border">Neighborhood</span>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
