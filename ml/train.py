@@ -16,7 +16,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, StackingRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -78,6 +78,13 @@ def run_model_training():
     preprocessor = build_preprocessing_pipeline(num_cols, cat_cols)
     
     # 4. Define Regressors
+    stacking_estimators = [
+        ("ridge", Ridge(alpha=10.0)),
+        ("rf", RandomForestRegressor(n_estimators=150, random_state=42, n_jobs=-1)),
+        ("gbr", GradientBoostingRegressor(n_estimators=150, learning_rate=0.05, max_depth=3, random_state=42)),
+        ("xgb", XGBRegressor(n_estimators=150, learning_rate=0.05, max_depth=3, random_state=42, n_jobs=-1))
+    ]
+
     models = {
         "Linear Regression": LinearRegression(),
         "Ridge Regression": Ridge(alpha=10.0),
@@ -85,7 +92,8 @@ def run_model_training():
         "Decision Tree": DecisionTreeRegressor(max_depth=10, random_state=42),
         "Random Forest": RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1),
         "Gradient Boosting": GradientBoostingRegressor(n_estimators=300, learning_rate=0.05, max_depth=3, random_state=42),
-        "XGBoost": XGBRegressor(n_estimators=300, learning_rate=0.05, max_depth=3, random_state=42, n_jobs=-1)
+        "XGBoost": XGBRegressor(n_estimators=300, learning_rate=0.05, max_depth=3, random_state=42, n_jobs=-1),
+        "Stacking Ensemble": StackingRegressor(estimators=stacking_estimators, final_estimator=Ridge(alpha=1.0))
     }
 
     results = []
@@ -171,7 +179,7 @@ def run_model_training():
             fi_df = fi_df.sort_values("Importance", ascending=False).head(20)
 
             plt.figure(figsize=(12, 8))
-            sns.barplot(x="Importance", y="Feature", data=fi_df, palette="mako")
+            sns.barplot(x="Importance", y="Feature", data=fi_df, hue="Feature", legend=False, palette="mako")
             plt.title("Top 20 Important Features (Tuned Gradient Boosting)", fontsize=14, fontweight="bold")
             plt.tight_layout()
             fi_img_path = os.path.join(STATIC_DIR, "feature_importance.png")

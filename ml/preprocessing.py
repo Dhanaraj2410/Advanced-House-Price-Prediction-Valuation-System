@@ -58,6 +58,26 @@ class FeatureEngineer(BaseEstimator, TransformerMixin):
         X_out['HasGarage'] = (garage_cars > 0).astype(int)
         X_out['HasBasement'] = (total_bsmt > 0).astype(int)
 
+        # 5. Total Porch Square Footage
+        wood_deck = X_out['WoodDeckSF'].fillna(0) if 'WoodDeckSF' in X_out.columns else 0
+        open_porch = X_out['OpenPorchSF'].fillna(0) if 'OpenPorchSF' in X_out.columns else 0
+        enc_porch = X_out['EnclosedPorch'].fillna(0) if 'EnclosedPorch' in X_out.columns else 0
+        ssn_porch = X_out['3SsnPorch'].fillna(0) if '3SsnPorch' in X_out.columns else 0
+        screen_porch = X_out['ScreenPorch'].fillna(0) if 'ScreenPorch' in X_out.columns else 0
+        X_out['TotalPorchSF'] = wood_deck + open_porch + enc_porch + ssn_porch + screen_porch
+
+        # 6. Interaction Features
+        overall_qual = X_out['OverallQual'].fillna(5) if 'OverallQual' in X_out.columns else 5
+        gr_liv_area = X_out['GrLivArea'].fillna(1500) if 'GrLivArea' in X_out.columns else 1500
+
+        X_out['Quality_LivArea'] = overall_qual * gr_liv_area
+        X_out['Quality_TotalSF'] = overall_qual * X_out['TotalSF']
+        
+        # Ensure non-zero denominator to prevent infinity
+        age = np.maximum(X_out['HouseAge'].fillna(10), 0)
+        X_out['QualityAgeRatio'] = overall_qual / (age + 1.0)
+        X_out['QualityAgeRatio'] = X_out['QualityAgeRatio'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
         return X_out
 
 def remove_outliers(df):
