@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.schemas import get_schema_view
 from app import views
 
 urlpatterns = [
@@ -10,7 +11,12 @@ urlpatterns = [
     path('history/delete/<int:pk>/', views.delete_history_view, name='delete_history'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     
-    # REST API Routes
+    # REST API & OpenAPI Schema Routes
+    path('api/schema/', get_schema_view(
+        title="Advanced House Price Prediction & Valuation API",
+        description="RESTful API endpoints for ML property price inference, batch valuation, and prediction history.",
+        version="1.0.0"
+    ), name='api_schema'),
     path('api/predict/', views.PredictAPIView.as_view(), name='api_predict'),
     path('api/predict/bulk/', views.BulkPredictAPIView.as_view(), name='api_predict_bulk'),
     path('api/predictions/', views.PredictionListAPIView.as_view(), name='api_predictions_list'),
