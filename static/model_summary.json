@@ -1,0 +1,23 @@
+{
+  "system_name": "Advanced House Price Prediction & Valuation System",
+  "version": "1.2.0",
+  "total_stored_predictions": 10,
+  "top_feature_importances": {
+    "OverallQual": 0.385,
+    "GrLivArea": 0.245,
+    "TotalBsmtSF": 0.112,
+    "YearBuilt": 0.084,
+    "GarageCars": 0.061,
+    "1stFlrSF": 0.045,
+    "FullBath": 0.028,
+    "YearRemodAdd": 0.022,
+    "LotArea": 0.012,
+    "OverallCond": 0.006
+  },
+  "supported_valuation_tiers": [
+    "Luxury Estate",
+    "Premium Residential",
+    "Mid-Range Suburban",
+    "Budget Friendly"
+  ]
+}
