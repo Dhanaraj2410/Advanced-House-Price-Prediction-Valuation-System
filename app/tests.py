@@ -65,6 +65,16 @@ class HousePredictionWebTestCase(TestCase):
         self.assertEqual(response['Content-Type'], 'text/csv')
         self.assertIn('NridgHt', response.content.decode('utf-8'))
 
+    def test_export_history_json_view(self):
+        response = self.client.get(reverse('export_history_csv'), {'format': 'json'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+        data = response.json()
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['neighborhood'], 'NridgHt')
+
+
     def test_dashboard_view(self):
         response = self.client.get(reverse('dashboard'))
         self.assertEqual(response.status_code, 200)
