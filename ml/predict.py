@@ -183,6 +183,8 @@ def predict_price(input_data):
     if neighborhood in premium_neighborhoods:
         insights.append(f"Location in high-demand neighborhood '{neighborhood}' carries location premium.")
 
+    anomalies = check_input_anomalies(input_df)
+
     return {
         "predicted_price": round(predicted_price, 2),
         "formatted_price": f"${predicted_price:,.2f}",
@@ -191,8 +193,32 @@ def predict_price(input_data):
         "formatted_range": f"${price_min:,.2f} - ${price_max:,.2f}",
         "price_per_sqft": price_per_sqft,
         "valuation_tier": valuation_tier,
-        "insights": insights
+        "insights": insights,
+        "anomalies": anomalies
     }
+
+def check_input_anomalies(input_df):
+    """
+    Scans feature input DataFrame for out-of-bounds or anomalous parameter values.
+    Returns list of warning strings if anomalies detected.
+    """
+    warnings = []
+    gr_liv_area = float(input_df.get('GrLivArea', [1500])[0])
+    year_built = int(input_df.get('YearBuilt', [2000])[0])
+    overall_qual = int(input_df.get('OverallQual', [6])[0])
+    total_bsmt = float(input_df.get('TotalBsmtSF', [900])[0])
+
+    if gr_liv_area > 6000 or gr_liv_area < 300:
+        warnings.append(f"Anomalous living area ({gr_liv_area:,.0f} sq ft) detected outside expected 300-6000 range.")
+    if year_built < 1850 or year_built > 2026:
+        warnings.append(f"Year built ({year_built}) is outside normal domain bounds (1850-2026).")
+    if overall_qual < 1 or overall_qual > 10:
+        warnings.append(f"Overall quality score ({overall_qual}) is outside valid 1-10 range.")
+    if total_bsmt > 5000:
+        warnings.append(f"Extremely large basement area ({total_bsmt:,.0f} sq ft) detected.")
+
+    return warnings
+
 
 def get_feature_importances():
     """
