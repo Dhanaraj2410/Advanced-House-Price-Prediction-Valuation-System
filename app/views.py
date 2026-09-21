@@ -133,8 +133,34 @@ def history_view(request):
 def export_history_csv_view(request):
     """
     GET /history/export/
-    Exports prediction history to downloadable CSV attachment.
+    Exports prediction history to downloadable CSV or JSON attachment based on ?format=json.
     """
+    export_format = request.GET.get('format', 'csv').lower()
+    predictions = HousePrediction.objects.all().order_by('-created_at')
+
+    if export_format == 'json':
+        data = []
+        for p in predictions:
+            data.append({
+                'id': p.id,
+                'neighborhood': p.neighborhood,
+                'overall_qual': p.overall_qual,
+                'gr_liv_area': p.gr_liv_area,
+                'total_bsmt_sf': p.total_bsmt_sf,
+                'year_built': p.year_built,
+                'garage_cars': p.garage_cars,
+                'full_bath': p.full_bath,
+                'predicted_price': p.predicted_price,
+                'price_min': p.price_min,
+                'price_max': p.price_max,
+                'price_per_sqft': p.price_per_sqft,
+                'valuation_tier': p.valuation_tier,
+                'created_at': p.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename="house_price_prediction_history.json"'
+        return response
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="house_price_prediction_history.csv"'
 
@@ -146,7 +172,7 @@ def export_history_csv_view(request):
         'Valuation Tier', 'Created At'
     ])
 
-    for p in HousePrediction.objects.all().order_by('-created_at'):
+    for p in predictions:
         writer.writerow([
             p.id, p.neighborhood, p.overall_qual, p.gr_liv_area,
             p.total_bsmt_sf, p.year_built, p.garage_cars, p.full_bath,
@@ -155,6 +181,7 @@ def export_history_csv_view(request):
         ])
 
     return response
+
 
 def dashboard_view(request):
     """
