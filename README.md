@@ -10,9 +10,11 @@ An end-to-end Machine Learning Regression & Production Django Web Application th
 - **Core Algorithms Evaluated**: Linear Regression, Ridge, Lasso, Decision Tree, Random Forest, Gradient Boosting, XGBoost, and Stacking Ensemble.
 - **Top Model Performance**: Stacking Regressor & Tuned Lasso Regressor achieving **$14,028 MAE**, **$19,896 RMSE**, and **0.9283 R² Score** with **0.1188 Mean CV RMSE**.
 - **Valuation Confidence**: Automated confidence bounds ($\pm 6.5\%$ standard error interval), price per sq. ft. metrics, valuation tier classification (`Luxury Estate`, `Premium Residential`, `Mid-Range Suburban`, `Budget Friendly`), and dynamic AI feature influence drivers.
-- **Batch CSV Processing**: Upload bulk property CSVs via web interface (`/predict/bulk/`) or REST API (`/api/predict/bulk/`) for high-throughput automated valuation.
-- **Searchable History & CSV Export**: Filter prediction records by neighborhood, price range, and search query with full pagination and downloadable CSV history reports (`/history/export/`).
-- **Developer & CLI Workflows**: Custom Django management commands (`python manage.py retrain_model`, `python manage.py seed_history`) and OpenAPI schema documentation (`/api/schema/`).
+- **Batch CSV & JSON Export**: Upload bulk property CSVs via web interface (`/predict/bulk/`) or REST API (`/api/predict/bulk/`) and export history as `.csv` or `.json`.
+- **Health Check & Feature Importances API**: RESTful endpoints for system health diagnostics (`/api/health/`) and relative feature weight breakdowns (`/api/feature-importance/`).
+- **Input Anomaly Guardrails**: Out-of-bounds parameter validation flagging extreme square footage, construction year, or pricing anomalies.
+- **Developer & CLI Workflows**: Custom Django management commands (`retrain_model`, `seed_history`, `export_model_summary`), request performance middleware, and GitHub Actions CI workflow (`.github/workflows/ci.yml`).
+
 
 ---
 
