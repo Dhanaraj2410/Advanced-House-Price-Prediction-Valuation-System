@@ -132,3 +132,13 @@ class HousePredictionAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
 
+    def test_health_check_api(self):
+        response = self.client.get(reverse('api_health'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'healthy')
+        self.assertEqual(data['database'], 'ok')
+        self.assertEqual(data['model_engine'], 'loaded')
+        self.assertIn('version', data)
+
+
