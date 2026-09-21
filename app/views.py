@@ -16,7 +16,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from app.models import HousePrediction
 from app.forms import HousePredictionForm
 from app.serializers import HousePredictionSerializer
-from ml.predict import predict_price
+from ml.predict import predict_price, get_feature_importances
 
 def home_view(request):
     """Render home landing page."""
@@ -415,5 +415,18 @@ class HealthCheckAPIView(APIView):
             'total_predictions_stored': prediction_count,
             'version': '1.2.0'
         }, status=status.HTTP_200_OK if overall == "healthy" else status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class FeatureImportanceAPIView(APIView):
+    """
+    GET /api/feature-importance/
+    Returns feature importance weights for ML valuation models.
+    """
+    def get(self, request):
+        importances = get_feature_importances()
+        return Response({
+            'count': len(importances),
+            'feature_importances': importances
+        }, status=status.HTTP_200_OK)
+
 
 

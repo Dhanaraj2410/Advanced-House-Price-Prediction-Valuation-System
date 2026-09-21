@@ -22,5 +22,7 @@ urlpatterns = [
     path('api/predictions/', views.PredictionListAPIView.as_view(), name='api_predictions_list'),
     path('api/predictions/<int:pk>/', views.PredictionDetailAPIView.as_view(), name='api_prediction_detail'),
     path('api/health/', views.HealthCheckAPIView.as_view(), name='api_health'),
+    path('api/feature-importance/', views.FeatureImportanceAPIView.as_view(), name='api_feature_importance'),
 ]
+
 
