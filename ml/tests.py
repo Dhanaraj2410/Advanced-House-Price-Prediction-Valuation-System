@@ -90,10 +90,30 @@ class TestMLPredict(unittest.TestCase):
         self.assertIn('price_per_sqft', res)
         self.assertIn('valuation_tier', res)
         self.assertIn('insights', res)
+        self.assertIn('anomalies', res)
         
         self.assertGreater(res['predicted_price'], 0)
         self.assertGreater(res['price_max'], res['price_min'])
         self.assertIsInstance(res['insights'], list)
 
+    def test_predict_price_anomaly_warnings(self):
+        anomalous_input = {
+            'OverallQual': 15, # Out of 1-10 range
+            'GrLivArea': 8000, # Out of 300-6000 range
+            'YearBuilt': 1750, # Out of 1850-2026 range
+            'TotalBsmtSF': 6000 # Basement > 5000
+        }
+        res = predict_price(anomalous_input)
+        self.assertIn('anomalies', res)
+        self.assertGreaterEqual(len(res['anomalies']), 3)
+
+    def test_get_feature_importances(self):
+        from ml.predict import get_feature_importances
+        importances = get_feature_importances()
+        self.assertIsInstance(importances, dict)
+        self.assertIn('OverallQual', importances)
+        self.assertIn('GrLivArea', importances)
+
 if __name__ == '__main__':
     unittest.main()
+
