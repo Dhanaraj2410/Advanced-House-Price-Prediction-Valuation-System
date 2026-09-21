@@ -63,14 +63,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database Configuration with MySQL fallback to SQLite
-DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.mysql')
+DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
 DB_NAME = os.getenv('DB_NAME', 'house_price_db')
 DB_USER = os.getenv('DB_USER', 'root')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'Dhanaraj2410')
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '3306')
 
+use_mysql = False
 if DB_ENGINE == 'django.db.backends.mysql':
+    try:
+        import MySQLdb  # noqa
+        use_mysql = True
+    except ImportError:
+        try:
+            import pymysql
+            pymysql.install_as_MySQLdb()
+            use_mysql = True
+        except ImportError:
+            use_mysql = False
+
+if use_mysql:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -92,6 +105,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

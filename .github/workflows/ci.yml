@@ -24,6 +24,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django & ML Unit Test Suites
+        env:
+          DB_ENGINE: django.db.backends.sqlite3
+          SECRET_KEY: django-insecure-ci-testing-key-value
         run: |
           python manage.py test
           python -m unittest ml/tests.py
+
