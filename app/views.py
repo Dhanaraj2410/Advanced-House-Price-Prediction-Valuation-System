@@ -384,3 +384,36 @@ class BulkPredictAPIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class HealthCheckAPIView(APIView):
+    """
+    GET /api/health/
+    Returns system health status, database connectivity, and ML model status.
+    """
+    def get(self, request):
+        db_status = "ok"
+        prediction_count = 0
+        try:
+            prediction_count = HousePrediction.objects.count()
+        except Exception:
+            db_status = "error"
+
+        model_status = "loaded"
+        try:
+            # Simple dummy test call to verify model readiness
+            predict_price({
+                'OverallQual': 6, 'GrLivArea': 1500, 'YearBuilt': 2000,
+                'GarageCars': 2, 'TotalBsmtSF': 900, 'FullBath': 2, 'Neighborhood': 'NAmes'
+            })
+        except Exception:
+            model_status = "unhealthy"
+
+        overall = "healthy" if (db_status == "ok" and model_status == "loaded") else "degraded"
+        return Response({
+            'status': overall,
+            'database': db_status,
+            'model_engine': model_status,
+            'total_predictions_stored': prediction_count,
+            'version': '1.2.0'
+        }, status=status.HTTP_200_OK if overall == "healthy" else status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
