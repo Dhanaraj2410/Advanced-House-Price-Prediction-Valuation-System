@@ -81,8 +81,10 @@
 <div class="row g-4 mb-4">
     <div class="col-lg-6">
         <div class="card card-custom p-3 bg-white shadow-sm h-100">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i>Top Important Features</h5>
-            <img src="/static/eda/feature_importance.png" class="img-fluid rounded shadow-sm" alt="Feature Importance Plot">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i>Interactive Feature Importance</h5>
+            <div style="min-height: 260px;">
+                <canvas id="featureImportanceChart"></canvas>
+            </div>
         </div>
     </div>
     <div class="col-lg-6">
@@ -104,5 +106,42 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rawData = {{ feature_importances_json|safe }};
+    const labels = Object.keys(rawData);
+    const values = Object.values(rawData);
+
+    const ctx = document.getElementById('featureImportanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Relative Weight',
+                data: values,
+                backgroundColor: 'rgba(79, 70, 229, 0.75)',
+                borderColor: 'rgba(79, 70, 229, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}
+
 

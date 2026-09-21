@@ -198,9 +198,11 @@ def dashboard_view(request):
         'min_price': round(min_price, 2),
         'avg_price_sqft': avg_price_sqft,
         'tier_counts': json.dumps(tier_counts),
+        'feature_importances_json': json.dumps(get_feature_importances()),
         'benchmark_report': benchmark_report,
         'recent_predictions': predictions[:10]
     })
+
 
 def delete_history_view(request, pk):
     """Delete a single prediction history record."""
