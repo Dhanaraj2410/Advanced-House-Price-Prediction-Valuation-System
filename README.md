@@ -174,7 +174,7 @@ OpenAPI Schema Route: `GET /api/schema/`
 
 ---
 
-## 🧪 Automated Testing & Verification
+## 🧪 Automated Testing & Verification 
 
 Run the full Django web & REST API test suite:
 ```powershell
