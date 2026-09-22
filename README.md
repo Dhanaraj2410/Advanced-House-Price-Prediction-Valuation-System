@@ -193,6 +193,5 @@ python -m ml.benchmark
 
 ---
 
-## 📝 Author & License
+## 📝 Author
 - **Author**: Dhanaraj Lokhande 
-- **License**: Open-source under the MIT License.
