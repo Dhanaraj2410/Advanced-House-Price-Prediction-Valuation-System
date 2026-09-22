@@ -5,7 +5,7 @@ An end-to-end Machine Learning Regression & Production Django Web Application th
 ---
 
 ## 📌 Project Overview 
-- **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.
+- **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.  
 - **Target Variable**: `SalePrice` (Log-transformed `np.log1p` during training for variance stabilization).
 - **Core Algorithms Evaluated**: Linear Regression, Ridge, Lasso, Decision Tree, Random Forest, Gradient Boosting, XGBoost, and Stacking Ensemble.
 - **Top Model Performance**: Stacking Regressor & Tuned Lasso Regressor achieving **$14,028 MAE**, **$19,896 RMSE**, and **0.9283 R² Score** with **0.1188 Mean CV RMSE**.
