@@ -5,6 +5,7 @@ An end-to-end Machine Learning Regression & Production Django Web Application th
 ---
 
 ## 📌 Project Overview 
+
 - **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.  
 - **Target Variable**: `SalePrice` (Log-transformed `np.log1p` during training for variance stabilization).
 - **Core Algorithms Evaluated**: Linear Regression, Ridge, Lasso, Decision Tree, Random Forest, Gradient Boosting, XGBoost, and Stacking Ensemble.
