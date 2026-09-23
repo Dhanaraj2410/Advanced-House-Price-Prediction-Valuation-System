@@ -122,7 +122,7 @@ python manage.py seed_history --clear
 
 ---
 
-## 🔌 REST API Endpoints and OpenAPI Documentation 
+## 🔌 REST API Endpoints & OpenAPI Documentation 
 
 OpenAPI Schema Route: `GET /api/schema/`
 
