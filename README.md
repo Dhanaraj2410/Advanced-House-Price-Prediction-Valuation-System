@@ -1,9 +1,7 @@
 # 🏠 Advanced House Price Prediction & Valuation System  
 
 An end-to-end Machine Learning Regression & Production Django Web Application that predicts residential property sale prices using structural, spatial, quality, and domain-engineered features from the Ames Housing Dataset. 
-
 ---
-
 ## 📌 Project Overview 
 
 - **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.  
