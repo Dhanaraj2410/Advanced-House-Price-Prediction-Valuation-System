@@ -4,7 +4,7 @@ An end-to-end Machine Learning Regression & Production Django Web Application th
 
 ---
 
-## 📌 Project Overview 
+##📌Project Overview 
 
 - **Dataset**: 1,460 property records (81 columns) in `train.csv` and 1,459 records (80 columns) in `test.csv`.  
 - **Target Variable**: `SalePrice` (Log-transformed `np.log1p` during training for variance stabilization).
